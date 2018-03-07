@@ -20,4 +20,4 @@ This project describes how to generate depth image using 3D Hand Model
 
 
 
-
+vedio:https://www.youtube.com/watch?v=gQQXkJL4yjE
