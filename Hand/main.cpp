@@ -11,7 +11,7 @@ msra msr;
 #include <iostream>
 #include "Viewer.h"
  
-#pragma comment(lib,"freeglutd.lib")
+//#pragma comment(lib,"freeglutd.lib")
 
 #include "Sampling.h"
 
@@ -19,7 +19,7 @@ msra msr;
 
 
 Config config;
-VisData data;
+VisData _data;
 Control control;
 Sample sample(30.0);
 Projection projection(240,320,23,28);
@@ -141,15 +141,15 @@ void draw() {
   }
 
   if(config.show_mesh){
-	  if(data.indices == nullptr) return;
-	  if(data.vertices == nullptr ) return;
+	  if(_data.indices == nullptr) return;
+	  if(_data.vertices == nullptr ) return;
 	  glColor3d(0.0,0.0,1.0);
       glEnableClientState(GL_VERTEX_ARRAY);
-      glVertexPointer(3, GL_FLOAT, 0, data.vertices);
+      glVertexPointer(3, GL_FLOAT, 0, _data.vertices);
 	  glEnableClientState(GL_COLOR_ARRAY);
-	  glColorPointer(3, GL_FLOAT, 0, data.colors);
+	  glColorPointer(3, GL_FLOAT, 0, _data.colors);
 //glDrawElements(GL_TRIANGLE_STRIP, 12, GL_UNSIGNED_BYTE, indices);
-	  glDrawElements(GL_TRIANGLES, 3*data.num_face, GL_UNSIGNED_INT, data.indices);
+	  glDrawElements(GL_TRIANGLES, 3*_data.num_face, GL_UNSIGNED_INT, _data.indices);
 
 // deactivate vertex arrays after drawing
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -157,19 +157,19 @@ void draw() {
   }
   //glEnable(GL_LIGHTING);
   if(config.show_skeleton){
-	  for(int i = 0; i < data.joints.rows(); i++ ){
+	  for(int i = 0; i < _data.joints.rows(); i++ ){
 		  glColor3f(1.0,0.0,0.0); 
 		  glPushMatrix();
-		  glTranslatef(data.joints(i,0), data.joints(i,1), data.joints(i,2));
+		  glTranslatef(_data.joints(i,0), _data.joints(i,1), _data.joints(i,2));
 		  glutSolidSphere(5, 31, 10);
 		  glPopMatrix();
 		  if(i!=0){
 			  glLineWidth(5);
 			  glColor3f(0.0,1.0,0); 
 			  glBegin(GL_LINES);
-			  int ii = data.joints(i,3);
-			  glVertex3f(data.joints(ii,0), data.joints(ii,1), data.joints(ii,2));
-			  glVertex3f(data.joints(i,0), data.joints(i,1), data.joints(i,2));
+			  int ii = _data.joints(i,3);
+			  glVertex3f(_data.joints(ii,0), _data.joints(ii,1), _data.joints(ii,2));
+			  glVertex3f(_data.joints(i,0), _data.joints(i,1), _data.joints(i,2));
 			  glEnd();		
 		  }
 	  }
@@ -211,8 +211,8 @@ void idle() {
 	model->compute_mesh();
 	projection.compute_current_orientation(model);
 	projection.project_3d_to_2d(model);
-	data.set_vertices(model->vertices_update_);
-	data.set_skeleton(model);
+	_data.set_vertices(model->vertices_update_);
+	_data.set_skeleton(model);
 	glutPostRedisplay();
 }
  
@@ -256,10 +256,10 @@ void main(int argc, char** argv){
 	projection.compute_current_orientation(model);
 	projection.project_3d_to_2d(model);
 
-	data.init(model->vertices_.rows(),model->faces_.rows());
-	data.set(model->vertices_update_,model->faces_);
-	data.set_color(model->weight_);
-	data.set_skeleton(model);
+	_data.init(model->vertices_.rows(),model->faces_.rows());
+	_data.set(model->vertices_update_,model->faces_);
+	_data.set_color(model->weight_);
+	_data.set_skeleton(model);
 	//model->compute_mesh();
 	//double target_position[3*NUM_JOINT];
 	//memset(target_position,0,sizeof(double)*NUM_JOINT*3);

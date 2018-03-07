@@ -1,5 +1,8 @@
 #pragma once
-#include "opencv2/opencv.hpp"
+#include<opencv2\opencv.hpp>
+#include<opencv2\core\core.hpp>
+#include<opencv2\highgui\highgui.hpp>
+#include<opencv2\imgproc\imgproc.hpp>
 #include "model.h"
 #include "visualize.h"
 #include <vector>
@@ -7,17 +10,17 @@
 
 using namespace std;
 #include <direct.h>
-#ifdef _DEBUG
-#pragma comment(lib,"opencv_core249d.lib")
-#pragma comment(lib,"opencv_highgui249d.lib")
-#pragma comment(lib,"opencv_imgproc249d.lib")
-#pragma comment(lib,"opencv_contrib249d.lib")
-#else 
-#pragma comment(lib,"opencv_core249.lib")
-#pragma comment(lib,"opencv_highgui249.lib")
-#pragma comment(lib,"opencv_imgproc249.lib")
-#pragma comment(lib,"opencv_contrib249.lib")
-#endif
+//#ifdef _DEBUG
+//#pragma comment(lib,"opencv_core249d.lib")
+//#pragma comment(lib,"opencv_highgui249d.lib")
+//#pragma comment(lib,"opencv_imgproc249d.lib")
+//#pragma comment(lib,"opencv_contrib249d.lib")
+//#else 
+//#pragma comment(lib,"opencv_core249.lib")
+//#pragma comment(lib,"opencv_highgui249.lib")
+//#pragma comment(lib,"opencv_imgproc249.lib")
+//#pragma comment(lib,"opencv_contrib249.lib")
+//#endif
 struct ProjectParam{
 	double focal;
 	double centerx;
