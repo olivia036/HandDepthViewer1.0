@@ -46,7 +46,7 @@ class  BVH
 		vector< Channel * >  channels;
 
 		// local coordiate // 4*4
-		Eigen::MatrixXd local;
+		Eigen::MatrixXd local;          //模型矩阵   世界坐标 = 模型矩阵 * 模型坐标
 		// local inverse
 		Eigen::MatrixXd local_inverse;
 		// global coordinate // 4*4

@@ -57,6 +57,8 @@ public:
 		}
 
 		model->set_one_rotation(pose,idx);
+
+
 		//for(int i = 0; i < model->get_number_of_joint(); i ++ ){
 		//	upper = model->get_upper_of_angle(i);
 		//	lower = model->get_lower_of_angle(i);

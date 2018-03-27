@@ -24,6 +24,9 @@ Control control;
 Sample sample(30.0);
 Projection projection(240,320,23,28);
 
+
+#pragma region  Keybroad_event(show mesh or not)
+
 void menu(int op) {
  
   switch(op) {
@@ -67,7 +70,9 @@ void keyboardSpecialDown(int k, int x, int y) {
 void keyboardSpecialUp(int k, int x, int y) {
  
 }
- 
+#pragma endregion  Keybroad_event(show mesh or not)
+
+
 /* reshaped window */
 void reshape(int width, int height) {
  
@@ -96,7 +101,7 @@ void logo(){
   const unsigned char kurff0[] = "kurff";
   glutBitmapString(GLUT_BITMAP_HELVETICA_18, kurff0);
    glRasterPos2i(-100, 100);
-  glColor3d(0.0, 1.0, 0.0);
+  glColor3d(0.0, 1.0, 0.0);  //(red ,green ,blue)
   const unsigned char kurff1[] = "kurff";
   glutBitmapString(GLUT_BITMAP_HELVETICA_18, kurff1);
      glRasterPos2i(100, -100);
@@ -124,7 +129,7 @@ void draw() {
   double y = r*sin(control.roty)*sin(control.rotx);
   double z = r*cos(control.roty);
   //cout<< x <<" "<< y <<" " << z<<endl;
-  gluLookAt(x+control.gx,y+control.gy,z+control.gz,control.gx,control.gy,control.gz,0.0, 1.0, 0.0);
+  gluLookAt(x+control.gx,y+control.gy,z+control.gz,control.gx,control.gy,control.gz,0.0, 1.0, 0.0);//个人理解最开始是看向-z的，之后的角度是在global中心上叠加的，所以要加
 
   logo();
   /* render the scene here */
@@ -158,11 +163,15 @@ void draw() {
   //glEnable(GL_LIGHTING);
   if(config.show_skeleton){
 	  for(int i = 0; i < _data.joints.rows(); i++ ){
+		  //画点开始
 		  glColor3f(1.0,0.0,0.0); 
 		  glPushMatrix();
 		  glTranslatef(_data.joints(i,0), _data.joints(i,1), _data.joints(i,2));
 		  glutSolidSphere(5, 31, 10);
 		  glPopMatrix();
+		  //画点结束，使用push和popmatrix是因为保证每个关节点的偏移都是相对于全局坐标中心点做的变换。
+
+		  //画线开始
 		  if(i!=0){
 			  glLineWidth(5);
 			  glColor3f(0.0,1.0,0); 
@@ -172,16 +181,18 @@ void draw() {
 			  glVertex3f(_data.joints(i,0), _data.joints(i,1), _data.joints(i,2));
 			  glEnd();		
 		  }
+
+		  //画线结束
 	  }
   }
 
 
-  
- 
   glFlush();
   glutSwapBuffers();
 }
- void mouseMotion(int x, int y) {
+
+
+void mouseMotion(int x, int y) {
 	control.rotx = (x - control.x)*0.05;
 	control.roty = (y - control.y)*0.05;
 
@@ -206,7 +217,7 @@ void idle() {
 	Pose pose;
 	pose.x = 0; pose.y = 0; pose.z = -200;
 	//sample.select_one_for_global(model,pose);
-	sample.select_one(model);
+	sample.select_one(model);           //用于随机选择一个关节点，进行该关节点变换范围内的随机变换，并且后续进行生成图像等一系列操作
 	model->forward_kinematic();
 	model->compute_mesh();
 	projection.compute_current_orientation(model);
@@ -236,7 +247,7 @@ void main(int argc, char** argv){
 
 	Pose pose(0,0,0);
 	pose.x = 0; pose.y = -0; pose.z = -20;
-	model->set_one_rotation(pose,21);
+	model->set_one_rotation(pose,21);  
 	pose.x = 0; pose.y = 0; pose.z = -90;
 	model->load_faces(".\\model\\handfaces.txt");
 	model->load_vertices(".\\model\\handverts.txt");
@@ -252,6 +263,7 @@ void main(int argc, char** argv){
 	model->save_upper_lower_of_angle("parameters_range.txt");
 	model->forward_kinematic();
 	model->compute_mesh();
+
 	projection.set_color_index(model);
 	projection.compute_current_orientation(model);
 	projection.project_3d_to_2d(model);

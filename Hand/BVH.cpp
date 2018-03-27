@@ -64,8 +64,10 @@ void  BVH::Load( const char * bvh_file_name )
 	unsigned int       i; int j;
 	Clear();
 	file_name = bvh_file_name;
-	const char *  mn_first = bvh_file_name;
-	const char *  mn_last = bvh_file_name + strlen( bvh_file_name );
+	const char *  mn_first = bvh_file_name;     //bvh_filme_name这个“路径地址”字符串的开始的地址（因为是用指针给指针赋值）
+	const char *  mn_last = bvh_file_name + strlen( bvh_file_name );//bvh_filme_name字符串的开始的地址+字符串占用的内存长度  = 字符串结束的地址
+#pragma region extract_The_nameOfTheFile  
+	//也就是提取".\\model\\HandBase.bvh"中的“HandBase”这个字段
 	if ( strrchr( bvh_file_name, '\\' ) != NULL )
 		mn_first = strrchr( bvh_file_name, '\\' ) + 1;
 	else if ( strrchr( bvh_file_name, '/' ) != NULL )
@@ -74,7 +76,9 @@ void  BVH::Load( const char * bvh_file_name )
 		mn_last = strrchr( bvh_file_name, '.' );
 	if ( mn_last < mn_first )
 		mn_last = bvh_file_name + strlen( bvh_file_name );
+
 	motion_name.assign( mn_first, mn_last );
+#pragma endregion
 	file.open( bvh_file_name, ios::in );
 	if ( file.is_open() == 0 )  return; 
 
@@ -99,14 +103,14 @@ void  BVH::Load( const char * bvh_file_name )
 			continue;
 		}
 
-		if ( ( strcmp( token, "ROOT" ) == 0 ) ||
-		     ( strcmp( token, "JOINT" ) == 0 ) || ( strcmp( token, "End" ) == 0 ))
+		if ( ( strcmp( token, "ROOT" ) == 0 ) ||( strcmp( token, "JOINT" ) == 0 ) || ( strcmp( token, "End" ) == 0 ))
 		{
 			new_joint = new Joint();
 			new_joint->index = joints.size();
 			new_joint->parent = joint;
 			new_joint->offset[0] = 0.0;  new_joint->offset[1] = 0.0;  new_joint->offset[2] = 0.0;
-			new_joint->scale = 0.75;
+			//new_joint->scale = 0.75;
+			new_joint->scale = 1;
 
 			new_joint->global_position[0] = 0.0;
 			new_joint->global_position[1] = 0.0;
@@ -208,14 +212,12 @@ void  BVH::Load( const char * bvh_file_name )
 	//token = strtok( NULL, separater );
 	//if ( token == NULL )  goto bvh_error;
 	//num_frame = atoi( token );
-
 	//file.getline( line, BUFFER_LENGTH );
 	//token = strtok( line, ":" );
 	//if ( strcmp( token, "Frame Time" ) != 0 )  goto bvh_error;
 	//token = strtok( NULL, separater );
 	//if ( token == NULL )  goto bvh_error;
 	//interval = atof( token );
-
 	//num_channel = channels.size();
 	//motion = new double[ num_frame * num_channel ];
 	//for (int i=0; i<num_frame; i++ )

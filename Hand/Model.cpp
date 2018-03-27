@@ -305,13 +305,13 @@ void Model::transform_matrix(Pose pose, Eigen::MatrixXd& rot){
 	z(0,0) = cz; z(1,1) = cz;
 	z(0,1) = -sz; z(1,0) = sz;
 
-	rot = x*y*z;
+	rot = x*y*z;   //旋转顺序 z-y-x
 }
 
 void Model::forward_kinematic(){
 
 	int number_joint = bvh_.GetNumJoint();
-	compute_global();
+	compute_global();                   
 	Eigen::MatrixXd I;
 	Eigen::MatrixXd t;
 	BVH::Joint* joint0 = bvh_.GetJoint(0);
@@ -534,7 +534,7 @@ void Model::compute_global(){
 	int number_joint = bvh_.GetNumJoint();
 	for(int i = 0; i < number_joint; i ++ ){
 	   BVH::Joint* joint = bvh_.GetJoint(i);
-	   joint->transR = joint->trans*joint->rotation;
+	   joint->transR = joint->trans*joint->rotation;  //rotation 在加载bvh文件时候初始化为4*4单位矩阵   //物体变换的顺序应为：大小，旋转，平移
 	}
 	BVH::Joint* joint0 = bvh_.GetJoint(0);
 	joint0->global = joint0->local;
@@ -542,12 +542,12 @@ void Model::compute_global(){
 		BVH::Joint* joint = bvh_.GetJoint(i);
 	    BVH::Joint* joint_parent = joint->parent;
 		if(joint_parent!=nullptr){
-			joint->global = joint_parent->global*joint->transR;
+			joint->global = joint_parent->global*joint->transR;        //在joint【0】不旋转的基础上计算的
 		}
 	}
 	for(int i = 0; i < number_joint; i ++ ){
 	   BVH::Joint* joint = bvh_.GetJoint(i);
-	   joint->global = joint0->rotation*joint->global;
+	   joint->global = joint0->rotation*joint->global;           //加上Joint【0】的旋转
 	}
 }
 
@@ -608,18 +608,15 @@ void Model::compute_local_coordinate(){
 			joint_child = joint->children[0];
 		}
 
-		axisx[0] = joint_child->init_global_position[0] - 
-				joint->init_global_position[0];
-			axisx[1] = joint_child->init_global_position[1] - 
-				joint->init_global_position[1];
-			axisx[2] = joint_child->init_global_position[2] - 
-				joint->init_global_position[2];
-	        normalize(axisx);
-			cross_product(axisx,axisz,axisy);
-			normalize(axisy);
-			cross_product(axisx, axisy, axisz);
-			normalize(axisz);
-			set_axis(axisx,axisy,axisz,joint->init_global_position,joint->local);
+		axisx[0] = joint_child->init_global_position[0] - joint->init_global_position[0];
+		axisx[1] = joint_child->init_global_position[1] - joint->init_global_position[1];
+		axisx[2] = joint_child->init_global_position[2] - joint->init_global_position[2];
+		normalize(axisx);
+		cross_product(axisx, axisz, axisy);
+		normalize(axisy);
+		cross_product(axisx, axisy, axisz);
+		normalize(axisz);
+		set_axis(axisx, axisy, axisz, joint->init_global_position, joint->local);
 	}
 }
 
@@ -732,16 +729,16 @@ void Model::load_weight(char* file){
 void Model::compute_mesh(){
 
 	int num_joint = bvh_.GetNumJoint();
-	compute_global();	
+	compute_global();
 	Eigen::MatrixXd t = Eigen::MatrixXd::Zero(4,num_vertices_);
 	Eigen::MatrixXd x = Eigen::MatrixXd::Ones(4,num_vertices_);
 	x.block(0,0,3,num_vertices_) = vertices_.block(0,0,num_vertices_,3).transpose();
 	BVH::Joint* joint = nullptr;
 	for(int i = 0; i < num_joint ; i ++ ){
 		joint = bvh_.GetJoint(i);
-		Eigen::MatrixXd y = weight_.block(0,i,num_vertices_,1);
-		Eigen::MatrixXd y0 = y.replicate(1,4);
-		Eigen::MatrixXd z = joint->scale*joint->global*joint->local_inverse*x;
+		Eigen::MatrixXd y = weight_.block(0,i,num_vertices_,1);// 在所有顶点 对于 该关节点的weight
+		Eigen::MatrixXd y0 = y.replicate(1,4);    //分别是行重复1遍，列重复4遍，结果为（num_vertices_，4）这么大小的矩阵
+		Eigen::MatrixXd z = joint->scale * joint->global * joint->local_inverse * x;
 		t = t + z.cwiseProduct(y0.transpose());
 	}
 	vertices_update_ = t.transpose();
